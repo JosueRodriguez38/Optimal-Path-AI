@@ -5,9 +5,9 @@ The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions.
 """
-
 import sys
 from collections import deque
+
 
 from utils import *
 
@@ -333,80 +333,80 @@ def iterative_deepening_search(problem):
 # Bidirectional Search
 # Pseudocode from https://webdocs.cs.ualberta.ca/%7Eholte/Publications/MM-AAAI2016.pdf
 
-def bidirectional_search(problem):
-    e = 0
-    if isinstance(problem, GraphProblem):
-        e = problem.find_min_edge()
-    gF, gB = {Node(problem.initial): 0}, {Node(problem.goal): 0}
-    openF, openB = [Node(problem.initial)], [Node(problem.goal)]
-    closedF, closedB = [], []
-    U = np.inf
-
-    def extend(U, open_dir, open_other, g_dir, g_other, closed_dir):
-        """Extend search in given direction"""
-        n = find_key(C, open_dir, g_dir)
-
-        open_dir.remove(n)
-        closed_dir.append(n)
-
-        for c in n.expand(problem):
-            if c in open_dir or c in closed_dir:
-                if g_dir[c] <= problem.path_cost(g_dir[n], n.state, None, c.state):
-                    continue
-
-                open_dir.remove(c)
-
-            g_dir[c] = problem.path_cost(g_dir[n], n.state, None, c.state)
-            open_dir.append(c)
-
-            if c in open_other:
-                U = min(U, g_dir[c] + g_other[c])
-
-        return U, open_dir, closed_dir, g_dir
-
-    def find_min(open_dir, g):
-        """Finds minimum priority, g and f values in open_dir"""
-        # pr_min_f isn't forward pr_min instead it's the f-value
-        # of node with priority pr_min.
-        pr_min, pr_min_f = np.inf, np.inf
-        for n in open_dir:
-            f = g[n] + problem.h(n)
-            pr = max(f, 2 * g[n])
-            pr_min = min(pr_min, pr)
-            pr_min_f = min(pr_min_f, f)
-
-        return pr_min, pr_min_f, min(g.values())
-
-    def find_key(pr_min, open_dir, g):
-        """Finds key in open_dir with value equal to pr_min
-        and minimum g value."""
-        m = np.inf
-        node = Node(-1)
-        for n in open_dir:
-            pr = max(g[n] + problem.h(n), 2 * g[n])
-            if pr == pr_min:
-                if g[n] < m:
-                    m = g[n]
-                    node = n
-
-        return node
-
-    while openF and openB:
-        pr_min_f, f_min_f, g_min_f = find_min(openF, gF)
-        pr_min_b, f_min_b, g_min_b = find_min(openB, gB)
-        C = min(pr_min_f, pr_min_b)
-
-        if U <= max(C, f_min_f, f_min_b, g_min_f + g_min_b + e):
-            return U
-
-        if C == pr_min_f:
-            # Extend forward
-            U, openF, closedF, gF = extend(U, openF, openB, gF, gB, closedF)
-        else:
-            # Extend backward
-            U, openB, closedB, gB = extend(U, openB, openF, gB, gF, closedB)
-
-    return np.inf
+# def bidirectional_search(problem):
+#     e = 0
+#     if isinstance(problem, GraphProblem):
+#         e = problem.find_min_edge()
+#     gF, gB = {Node(problem.initial): 0}, {Node(problem.goal): 0}
+#     openF, openB = [Node(problem.initial)], [Node(problem.goal)]
+#     closedF, closedB = [], []
+#     U = np.inf
+#
+#     def extend(U, open_dir, open_other, g_dir, g_other, closed_dir):
+#         """Extend search in given direction"""
+#         n = find_key(C, open_dir, g_dir)
+#
+#         open_dir.remove(n)
+#         closed_dir.append(n)
+#
+#         for c in n.expand(problem):
+#             if c in open_dir or c in closed_dir:
+#                 if g_dir[c] <= problem.path_cost(g_dir[n], n.state, None, c.state):
+#                     continue
+#
+#                 open_dir.remove(c)
+#
+#             g_dir[c] = problem.path_cost(g_dir[n], n.state, None, c.state)
+#             open_dir.append(c)
+#
+#             if c in open_other:
+#                 U = min(U, g_dir[c] + g_other[c])
+#
+#         return U, open_dir, closed_dir, g_dir
+#
+#     def find_min(open_dir, g):
+#         """Finds minimum priority, g and f values in open_dir"""
+#         # pr_min_f isn't forward pr_min instead it's the f-value
+#         # of node with priority pr_min.
+#         pr_min, pr_min_f = np.inf, np.inf
+#         for n in open_dir:
+#             f = g[n] + problem.h(n)
+#             pr = max(f, 2 * g[n])
+#             pr_min = min(pr_min, pr)
+#             pr_min_f = min(pr_min_f, f)
+#
+#         return pr_min, pr_min_f, min(g.values())
+#
+#     def find_key(pr_min, open_dir, g):
+#         """Finds key in open_dir with value equal to pr_min
+#         and minimum g value."""
+#         m = np.inf
+#         node = Node(-1)
+#         for n in open_dir:
+#             pr = max(g[n] + problem.h(n), 2 * g[n])
+#             if pr == pr_min:
+#                 if g[n] < m:
+#                     m = g[n]
+#                     node = n
+#
+#         return node
+#
+#     while openF and openB:
+#         pr_min_f, f_min_f, g_min_f = find_min(openF, gF)
+#         pr_min_b, f_min_b, g_min_b = find_min(openB, gB)
+#         C = min(pr_min_f, pr_min_b)
+#
+#         if U <= max(C, f_min_f, f_min_b, g_min_f + g_min_b + e):
+#             return U
+#
+#         if C == pr_min_f:
+#             # Extend forward
+#             U, openF, closedF, gF = extend(U, openF, openB, gF, gB, closedF)
+#         else:
+#             # Extend backward
+#             U, openB, closedB, gB = extend(U, openB, openF, gB, gF, closedB)
+#
+#     return np.inf
 
 
 # ______________________________________________________________________________
@@ -607,36 +607,36 @@ class PlanRoute(Problem):
 # Other search algorithms
 
 
-def recursive_best_first_search(problem, h=None):
-    """[Figure 3.26]"""
-    h = memoize(h or problem.h, 'h')
-
-    def RBFS(problem, node, flimit):
-        if problem.goal_test(node.state):
-            return node, 0  # (The second value is immaterial)
-        successors = node.expand(problem)
-        if len(successors) == 0:
-            return None, np.inf
-        for s in successors:
-            s.f = max(s.path_cost + h(s), node.f)
-        while True:
-            # Order by lowest f value
-            successors.sort(key=lambda x: x.f)
-            best = successors[0]
-            if best.f > flimit:
-                return None, best.f
-            if len(successors) > 1:
-                alternative = successors[1].f
-            else:
-                alternative = np.inf
-            result, best.f = RBFS(problem, best, min(flimit, alternative))
-            if result is not None:
-                return result, best.f
-
-    node = Node(problem.initial)
-    node.f = h(node)
-    result, bestf = RBFS(problem, node, np.inf)
-    return result
+# def recursive_best_first_search(problem, h=None):
+#     """[Figure 3.26]"""
+#     h = memoize(h or problem.h, 'h')
+#
+#     def RBFS(problem, node, flimit):
+#         if problem.goal_test(node.state):
+#             return node, 0  # (The second value is immaterial)
+#         successors = node.expand(problem)
+#         if len(successors) == 0:
+#             return None, np.inf
+#         for s in successors:
+#             s.f = max(s.path_cost + h(s), node.f)
+#         while True:
+#             # Order by lowest f value
+#             successors.sort(key=lambda x: x.f)
+#             best = successors[0]
+#             if best.f > flimit:
+#                 return None, best.f
+#             if len(successors) > 1:
+#                 alternative = successors[1].f
+#             else:
+#                 alternative = np.inf
+#             result, best.f = RBFS(problem, best, min(flimit, alternative))
+#             if result is not None:
+#                 return result, best.f
+#
+#     node = Node(problem.initial)
+#     node.f = h(node)
+#     result, bestf = RBFS(problem, node, np.inf)
+#     return result
 
 
 def hill_climbing(problem):
@@ -657,45 +657,45 @@ def hill_climbing(problem):
     return current.state
 
 
-def exp_schedule(k=20, lam=0.005, limit=100):
-    """One possible schedule function for simulated annealing"""
-    return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
+# def exp_schedule(k=20, lam=0.005, limit=100):
+#     """One possible schedule function for simulated annealing"""
+#     return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
 
 
-def simulated_annealing(problem, schedule=exp_schedule()):
-    """[Figure 4.5] CAUTION: This differs from the pseudocode as it
-    returns a state instead of a Node."""
-    current = Node(problem.initial)
-    for t in range(sys.maxsize):
-        T = schedule(t)
-        if T == 0:
-            return current.state
-        neighbors = current.expand(problem)
-        if not neighbors:
-            return current.state
-        next_choice = random.choice(neighbors)
-        delta_e = problem.value(next_choice.state) - problem.value(current.state)
-        if delta_e > 0 or probability(np.exp(delta_e / T)):
-            current = next_choice
-
-
-def simulated_annealing_full(problem, schedule=exp_schedule()):
-    """ This version returns all the states encountered in reaching 
-    the goal state."""
-    states = []
-    current = Node(problem.initial)
-    for t in range(sys.maxsize):
-        states.append(current.state)
-        T = schedule(t)
-        if T == 0:
-            return states
-        neighbors = current.expand(problem)
-        if not neighbors:
-            return current.state
-        next_choice = random.choice(neighbors)
-        delta_e = problem.value(next_choice.state) - problem.value(current.state)
-        if delta_e > 0 or probability(np.exp(delta_e / T)):
-            current = next_choice
+# def simulated_annealing(problem, schedule=exp_schedule()):
+#     """[Figure 4.5] CAUTION: This differs from the pseudocode as it
+#     returns a state instead of a Node."""
+#     current = Node(problem.initial)
+#     for t in range(sys.maxsize):
+#         T = schedule(t)
+#         if T == 0:
+#             return current.state
+#         neighbors = current.expand(problem)
+#         if not neighbors:
+#             return current.state
+#         next_choice = random.choice(neighbors)
+#         delta_e = problem.value(next_choice.state) - problem.value(current.state)
+#         if delta_e > 0 or probability(np.exp(delta_e / T)):
+#             current = next_choice
+#
+#
+# def simulated_annealing_full(problem, schedule=exp_schedule()):
+#     """ This version returns all the states encountered in reaching
+#     the goal state."""
+#     states = []
+#     current = Node(problem.initial)
+#     for t in range(sys.maxsize):
+#         states.append(current.state)
+#         T = schedule(t)
+#         if T == 0:
+#             return states
+#         neighbors = current.expand(problem)
+#         if not neighbors:
+#             return current.state
+#         next_choice = random.choice(neighbors)
+#         delta_e = problem.value(next_choice.state) - problem.value(current.state)
+#         if delta_e > 0 or probability(np.exp(delta_e / T)):
+#             current = next_choice
 
 
 def and_or_graph_search(problem):
@@ -1070,34 +1070,34 @@ def UndirectedGraph(graph_dict=None):
     return Graph(graph_dict=graph_dict, directed=False)
 
 
-def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
-                curvature=lambda: random.uniform(1.1, 1.5)):
-    """Construct a random graph, with the specified nodes, and random links.
-    The nodes are laid out randomly on a (width x height) rectangle.
-    Then each node is connected to the min_links nearest neighbors.
-    Because inverse links are added, some nodes will have more connections.
-    The distance between nodes is the hypotenuse times curvature(),
-    where curvature() defaults to a random number between 1.1 and 1.5."""
-    g = UndirectedGraph()
-    g.locations = {}
-    # Build the cities
-    for node in nodes:
-        g.locations[node] = (random.randrange(width), random.randrange(height))
-    # Build roads from each city to at least min_links nearest neighbors.
-    for i in range(min_links):
-        for node in nodes:
-            if len(g.get(node)) < min_links:
-                here = g.locations[node]
-
-                def distance_to_node(n):
-                    if n is node or g.get(node, n):
-                        return np.inf
-                    return distance(g.locations[n], here)
-
-                neighbor = min(nodes, key=distance_to_node)
-                d = distance(g.locations[neighbor], here) * curvature()
-                g.connect(node, neighbor, int(d))
-    return g
+# def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
+#                 curvature=lambda: random.uniform(1.1, 1.5)):
+#     """Construct a random graph, with the specified nodes, and random links.
+#     The nodes are laid out randomly on a (width x height) rectangle.
+#     Then each node is connected to the min_links nearest neighbors.
+#     Because inverse links are added, some nodes will have more connections.
+#     The distance between nodes is the hypotenuse times curvature(),
+#     where curvature() defaults to a random number between 1.1 and 1.5."""
+#     g = UndirectedGraph()
+#     g.locations = {}
+#     # Build the cities
+#     for node in nodes:
+#         g.locations[node] = (random.randrange(width), random.randrange(height))
+#     # Build roads from each city to at least min_links nearest neighbors.
+#     for i in range(min_links):
+#         for node in nodes:
+#             if len(g.get(node)) < min_links:
+#                 here = g.locations[node]
+#
+#                 def distance_to_node(n):
+#                     if n is node or g.get(node, n):
+#                         return np.inf
+#                     return distance(g.locations[n], here)
+#
+#                 neighbor = min(nodes, key=distance_to_node)
+#                 d = distance(g.locations[neighbor], here) * curvature()
+#                 g.connect(node, neighbor, int(d))
+#     return g
 
 
 """ [Figure 3.2]
@@ -1199,16 +1199,16 @@ class GraphProblem(Problem):
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
-        return cost_so_far + (self.graph.get(A, B) or np.inf)
+        return cost_so_far + (self.graph.get(A, B) or sys.maxint)
 
-    def find_min_edge(self):
-        """Find minimum value of edges."""
-        m = np.inf
-        for d in self.graph.graph_dict.values():
-            local_min = min(d.values())
-            m = min(m, local_min)
-
-        return m
+    # def find_min_edge(self):
+    #     """Find minimum value of edges."""
+    #     m = np.inf
+    #     for d in self.graph.graph_dict.values():
+    #         local_min = min(d.values())
+    #         m = min(m, local_min)
+    #
+    #     return m
 
     def h(self, node):
         """h function is straight-line distance from a node's state to goal."""
@@ -1219,7 +1219,7 @@ class GraphProblem(Problem):
 
             return int(distance(locs[node.state], locs[self.goal]))
         else:
-            return np.inf
+            return sys.maxint
 
 
 class GraphProblemStochastic(GraphProblem):
@@ -1379,7 +1379,7 @@ def boggle_neighbors(n2, cache={}):
 
 def exact_sqrt(n2):
     """If n2 is a perfect square, return its square root, else raise error."""
-    n = int(np.sqrt(n2))
+    n = int(n2**0.5)
     assert n * n == n2
     return n
 
@@ -1564,7 +1564,7 @@ def compare_searchers(problems, header,
                                  depth_first_graph_search,
                                  iterative_deepening_search,
                                  depth_limited_search,
-                                 recursive_best_first_search]):
+                                 ]):
     def do(searcher, problem):
         p = InstrumentedProblem(problem)
         searcher(p)
