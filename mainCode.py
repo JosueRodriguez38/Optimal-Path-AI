@@ -1,5 +1,19 @@
+from time import time
 import search
+from datetime import datetime
+
+t = datetime.now()
+time = int(t.strftime("%H"))
 trafficType = ['heavy','mixed','light'] 
+
+def arrivalTime(optimalTrvtime, trafficVol):
+    if (time >=7 and time<=9) or (time >=15 and time<=18):
+        if trafficVol == 'heavy':
+            return optimalTrvtime * 1.5
+        elif trafficVol == 'mixed':
+            return optimalTrvtime * 1.26
+        else:
+            return  optimalTrvtime
 
 PR_map = search.Map({('Ponce','Salinas'):  [36,trafficType[0]],('Ponce','Adjuntas'):  [25,trafficType[2]],('Ponce','Yauco'):  32,
 ('Mayaguez','Yauco'):  [45,trafficType[0]],('Mayaguez','Maricao'):  [26,trafficType[1]],('Mayaguez','Rincon'):  [23,trafficType[0]],('Mayaguez','Aguadilla'):  [28,trafficType[0]],
