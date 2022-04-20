@@ -1,49 +1,48 @@
 import search
+locs = {'SanJuan':(2044227.08, 805685.13), 'Ponce':(1993038.45,752625.54),'Salinas':(1989776.68,786168.85),
+        'Adjuntas':(2009766.0,740860.58),'Yauco':(1995376.04,727613.80), 'Maricao':(2010542.0,717323.0),
+        'Rincon':(2028715.19, 684922.70), 'Aguadilla':(2038469.91,694965.94),'Camuy':(2041508.70,726682.74),
+        'Utuado':(2021090.65,743122.28), 'Arecibo':(2040952.74, 748582.15),'Bayamon':(2035606.90, 799519.64),
+        'Catano':(2041984.68, 802564.11), 'Cayey':(2004874.15,799924.19), 'Caguas':(2019146.30,813544.32),
+        'Juncos':(2017815.84, 191065.79),'Canovanas':(2034106.34,193574.50),
+        'Humacao':(2009046.63, 200840.64), 'Yabucoa':(1998149.64, 195169.11), 'Guayama':(1990808.29, 805675.48),
+        'Fajardo':(2028271.61, 219651.35), 'Mayaguez':(2013453.29,696161.94)}
+PR_map = search.Map({('Ponce','Salinas'):  36,('Ponce','Adjuntas'):  25,('Ponce','Yauco'):  32,
+('Mayaguez','Yauco'):  45,('Mayaguez','Maricao'):  26,('Mayaguez','Rincon'):  23,('Mayaguez','Aguadilla'):  28,
+('Rincon','Aguadilla'):  17,('Camuy','Aguadilla'):  39,('Camuy','Utuado'):  44,('Camuy','Arecibo'):  15,
+('Utuado','Arecibo'):  33,('Utuado','Adjuntas'):  21,('Adjuntas','Maricao'):  54,
+('Bayamon','Arecibo'):  77,('Bayamon','Catano'):  11,('Bayamon','SanJuan'):  19,
+('SanJuan','Cayey'):  55,('SanJuan','Caguas'):  33,('SanJuan','Canovanas'):  30,
+('Cayey','Salinas'):  32,('Cayey','Guayama'):  42,('Cayey','Caguas'):  24,
+('Caguas','Juncos'):  15,
+('Canovanas','Juncos'):  21,('Canovanas','Fajardo'):  31,
+('Humacao','Fajardo'):  36,('Humacao','Yabucoa'):  18,
+('Guayama','Salinas'):  23,('Guayama','Yabucoa'):  38,},locs)
+#locs= 'City':(UTM_Northing, UTM_Easting)
 
-romania_map = search.UndirectedGraph(dict(
-    Ponce=dict(Salinas=36, Adjuntas=25, Yauco=32),
-    Yauco=dict(Ponce=32, Mayaguez=45),
-    Mayaguez=dict(Yauco=45, Maricao=26, Rincon=23, Aguadilla=28),
-    Maricao=dict(Mayaguez=26, Adjuntas=54),
-    Adjuntas=dict(Maricao=54, Ponce=25, Utuado=21),
-    Rincon=dict(Mayaguez=23, Aguadilla=17),
-    Aguadilla=dict(Rincon=17, Mayaguez=28, Camuy=39),
-    Camuy=dict(Aguadilla=39, Arecibo=15, Utuado=44),
-    Utuado=dict(Camuy=44, Arecibo=33, Adjuntas=21),
-    Arecibo=dict(Camuy=15, Utuado=33, Bayamon=77),
-    Bayamon=dict(Arecibo=77, Catano=11, SanJuan=19),
-    Catano=dict(Bayamon=11),
-    SanJuan=dict(Bayamon=19, Cayey=55, Caguas=33, Canovanas=30),
-    Cayey=dict(SanJuan=55, Salinas=32, Guayama=42, Caguas=24),
-    Caguas=dict(SanJuan=33, Cayey=24, Juncos=15),
-    Canovanas=dict(SanJuan=30, Juncos=22, Fajardo=31),
-    Juncos=dict(Caguas=15, Canovanas=22, Fajardo=52),
-    Fajardo=dict(Juncos=52, Humacao=36, Canovanas=31),
-    Salinas=dict(Cayey=32, Ponce=36, Guayama=23),
-    Humacao=dict(Fajardo=36, Yabucoa=18),
-    Guayama=dict(Yabucoa=38, Cayey=42, Salinas=23)))
+
+
 #Velocidades
 # Ponce a Yauco = 65mph Ponce a Isablea = 55
 # Mayaguez a Yauco = 65mph    Mayaguez a Rincon = 60  Mayaguez a Aguadilla = 65 Mayaguez a Maricao =35
-# 
+#
 
 
-# romania_map.locations = dict(
-#     Arad=(91, 492), Bucharest=(400, 327), Craiova=(253, 288),
-#     Drobeta=(165, 299), Eforie=(562, 293), Fagaras=(305, 449),
-#     Giurgiu=(375, 270), Hirsova=(534, 350), Iasi=(473, 506),
-#     Lugoj=(165, 379), Mehadia=(168, 339), Neamt=(406, 537),
-#     Oradea=(131, 571), Pitesti=(320, 368), Rimnicu=(233, 410),
-#     Sibiu=(207, 457), Timisoara=(94, 410), Urziceni=(456, 350),
-#     Vaslui=(509, 444), Zerind=(108, 531))
-g = search.GraphProblem('Mayaguez', "SanJuan", romania_map)
-p1 = search.breadth_first_graph_search(g)
+g = search.RouteProblem('Mayaguez', "SanJuan", map =PR_map)
+p1 = search.breadth_first_search(g)
 print("This is breadth first search", p1)
-p2 = search.best_first_graph_search(g, lambda node: node.path_cost)
+p2 = search.uniform_cost_search(g)
 print("This is uniform cost search", p2)
-p3 = search.depth_first_graph_search(g)
+p3 = search.depth_first_recursive_search(g)
 print("This is depth cost search", p3)
-p4 = search.greedy_best_first_graph_search(g, lambda n: g.h(n))
+p4 = search.greedy_bfs(g)
+#, lambda n: g.h(n)
 print("This is greedy search", p4)
-p5 = search.astar_search(g, lambda n: g.h(n) + n.path_cost)
+#lambda n: g.h(n) + n.path_cost
+p5 = search.astar_search(g)
 print("This is a* search", p5)
+
+print(search.straight_line_distance(locs['Ponce'],locs['Mayaguez']))
+print(search.straight_line_distance(locs['Adjuntas'],locs['Mayaguez']))
+print(search.straight_line_distance(locs['SanJuan'],locs['Mayaguez']))
+print(search.straight_line_distance(locs['Ponce'],locs['Salinas']))
