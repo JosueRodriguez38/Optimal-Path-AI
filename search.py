@@ -182,7 +182,7 @@ def breadth_first_search(problem):
     "Search shallowest nodes in the search tree first."
     node = Node(problem.initial)
     if problem.is_goal(problem.initial):
-        return node
+        return node, node.path_cost
     frontier = FIFOQueue([node])
     reached = {problem.initial}
     while frontier:
@@ -190,7 +190,7 @@ def breadth_first_search(problem):
         for child in expand(problem, node):
             s = child.state
             if problem.is_goal(s):
-                return child
+                return child, child.path_cost
             if s not in reached:
                 reached.add(s)
                 frontier.appendleft(child)
