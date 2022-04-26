@@ -14,6 +14,8 @@ def arrivalTime(dist, vel, trafficVol):
             return opmltrvltime * 1.5
         elif trafficVol == 'mixed':
             return opmltrvltime * 1.26
+        else:
+            return opmltrvltime
     else:
         return opmltrvltime
 
@@ -50,24 +52,6 @@ PR_map = search.Map({('Ponce', 'Salinas'): arrivalTime(36, 50, trafficType[0]), 
                      ('Guayama', 'Yabucoa'): arrivalTime(38, 50, trafficType[1])}, locs)
 
 # locs= 'City':(UTM_Northing, UTM_Easting)
-print(search.straight_line_distance(locs['Ponce'], locs['Mayaguez']))
-
 g = search.RouteProblem('Mayaguez', "SanJuan", map=PR_map)
 p1 = search.breadth_first_search(g)
-g = search.GraphProblem('Mayaguez', "SanJuan", PR_map)
-p1 = search.breadth_first_search(g)
-print("This is breadth first search", p1)
-p2 = search.uniform_cost_search(g)
-p2 = search.best_first_search(g, lambda node: node.path_cost)
-print("This is uniform cost search", p2)
-p3 = search.depth_first_recursive_search(g)
-p3 = search.depth_first_search(g)
-print("This is depth cost search", p3)
-p4 = search.greedy_bfs(g)
-# , lambda n: g.h(n)
-p4 = search.greedy_best_first_search(g, lambda n: g.h(n))
-print("This is greedy search", p4)
-# lambda n: g.h(n) + n.path_cost
-p5 = search.astar_search(g)
-p5 = search.astar_search(g, lambda n: g.h(n) + n.path_cost)
-print("This is a* search", p5)
+print(p1.path_cost)
