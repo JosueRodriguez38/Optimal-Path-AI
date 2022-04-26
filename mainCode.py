@@ -51,6 +51,29 @@ PR_map = search.Map({('Ponce', 'Salinas'): arrivalTime(36, 50, trafficType[0]), 
                      ('Guayama', 'Salinas'): arrivalTime(23, 50, trafficType[0]),
                      ('Guayama', 'Yabucoa'): arrivalTime(38, 50, trafficType[1])}, locs)
 
+PR_vel = search.Map({('Ponce', 'Salinas'): 50, ('Ponce', 'Adjuntas'): 40,
+                     ('Ponce', 'Yauco'): 55,
+                     ('Mayaguez', 'Yauco'): 55, ('Mayaguez', 'Maricao'): 40,
+                     ('Mayaguez', 'Rincon'): 50,
+                     ('Mayaguez', 'Aguadilla'): 55,
+                     ('Rincon', 'Aguadilla'): 55,
+                     ('Camuy', 'Aguadilla'): 50, ('Camuy', 'Utuado'): 40,
+                     ('Camuy', 'Arecibo'): 50,
+                     ('Utuado', 'Arecibo'): 50, ('Utuado', 'Adjuntas'): 35,
+                     ('Adjuntas', 'Maricao'): 35,
+                     ('Bayamon', 'Arecibo'): 50, ('Bayamon', 'Catano'): 45,
+                     ('Bayamon', 'SanJuan'): 55,
+                     ('SanJuan', 'Cayey'): 55, ('SanJuan', 'Caguas'): 55,
+                     ('SanJuan', 'Canovanas'): 50,
+                     ('Cayey', 'Salinas'): 50, ('Cayey', 'Guayama'): 55,
+                     ('Cayey', 'Caguas'): 55,
+                     ('Caguas', 'Juncos'): 50,
+                     ('Canovanas', 'Juncos'): 50,
+                     ('Canovanas', 'Fajardo'): 50,
+                     ('Humacao', 'Fajardo'): 55, ('Humacao', 'Yabucoa'): 55,
+                     ('Guayama', 'Salinas'): 50,
+                     ('Guayama', 'Yabucoa'): 50}, locs)
+
 # locs= 'City':(UTM_Northing, UTM_Easting)
 g = search.RouteProblem('Mayaguez', "SanJuan", map=PR_map)
 p1 = search.breadth_first_search(g)
