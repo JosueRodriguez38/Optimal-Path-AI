@@ -14,6 +14,8 @@ def arrivalTime(dist, vel, trafficVol):
             return opmltrvltime * 1.5
         elif trafficVol == 'mixed':
             return opmltrvltime * 1.26
+        else:
+            return opmltrvltime
     else:
         return opmltrvltime
 
@@ -51,7 +53,6 @@ PR_map = search.Map({('Ponce', 'Salinas'): arrivalTime(36, 50, trafficType[0]), 
 
 # locs= 'City':(UTM_Northing, UTM_Easting)
 print(search.straight_line_distance(locs['Ponce'], locs['Mayaguez']))
-
 g = search.RouteProblem('Mayaguez', "SanJuan", map=PR_map)
 p1 = search.breadth_first_search(g)
 g = search.GraphProblem('Mayaguez', "SanJuan", PR_map)
