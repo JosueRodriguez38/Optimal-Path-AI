@@ -1,3 +1,4 @@
+import copy
 import random
 import heapq
 import math
@@ -264,6 +265,7 @@ def straight_line_distance(A, B):
     return sum(abs(a - b) ** 2 for (a, b) in zip(A, B)) ** 0.5
 
 
+
 class Map:
     """A map of places in a 2D world: a graph with vertexes and links between them.
     In `Map(links, locations)`, `links` can be either [(v1, v2)...] pairs,
@@ -281,9 +283,108 @@ class Map:
         self.locations = locations or defaultdict(lambda: (0, 0))
 
 
+class CountCalls:
+    """Delegate all attribute gets to the object, and count them in ._counts"""
+
+    def __init__(self, obj):
+        self._object = obj
+        self._counts = Counter()
+
+    def __getattr__(self, attr):
+        "Delegate to the original object, after incrementing a counter."
+        self._counts[attr] += 1
+        return getattr(self._object, attr)
+
+
+def report(searchers, problems, verbose=True):
+    """Show summary statistics for each searcher (and on each problem unless verbose is false)."""
+    for searcher in searchers:
+        print(searcher.__name__ + ':')
+        total_counts = Counter()
+        for p in problems:
+            prob = CountCalls(p)
+            soln = searcher(prob)
+            counts = prob._counts;
+            counts.update(actions=len(soln), cost=soln.path_cost)
+            total_counts += counts
+            if verbose: report_counts(counts, str(p)[:40])
+        report_counts(total_counts, 'TOTAL\n')
+
+
+def report_counts(counts, name):
+    """Print one line of the counts report."""
+    print('{:9,d} nodes |{:9,d} goal |{:5.0f} cost |{:8,d} actions | {}'.format(
+        counts['result'], counts['is_goal'], counts['cost'], counts['actions'], name))
+
+
 def multimap(pairs) -> dict:
     "Given (key, val) pairs, make a dict of {key: [val,...]}."
     result = defaultdict(list)
     for key, val in pairs:
         result[key].append(val)
     return result
+
+def inverse_problem(problem):
+    if isinstance(problem, CountCalls):
+        return CountCalls(inverse_problem(problem._object))
+    else:
+        inv = copy.copy(problem)
+        inv.initial, inv.goal = inv.goal, inv.initial
+        return inv
+def bidirectional_best_first_search(problem_f, f_f, problem_b, f_b, terminated):
+    node_f = Node(problem_f.initial)
+    node_b = Node(problem_f.goal)
+    frontier_f, reached_f = PriorityQueue([node_f], key=f_f), {node_f.state: node_f}
+    frontier_b, reached_b = PriorityQueue([node_b], key=f_b), {node_b.state: node_b}
+    solution = failure
+    while frontier_f and frontier_b and not terminated(solution, frontier_f, frontier_b):
+        def S1(node, f):
+            return str(int(f(node))) + ' ' + str(path_states(node))
+        #print('Bi:', S1(frontier_f.top(), f_f), S1(frontier_b.top(), f_b))
+        if f_f(frontier_f.top()) < f_b(frontier_b.top()):
+            solution = proceed('f', problem_f, frontier_f, reached_f, reached_b, solution)
+        else:
+            solution = proceed('b', problem_b, frontier_b, reached_b, reached_f, solution)
+    return solution
+
+def inverse_problem(problem):
+    if isinstance(problem, CountCalls):
+        return CountCalls(inverse_problem(problem._object))
+    else:
+        inv = copy.copy(problem)
+        inv.initial, inv.goal = inv.goal, inv.initial
+        return inv
+
+def proceed(direction, problem, frontier, reached, reached2, solution):
+    node = frontier.pop()
+    for child in expand(problem, node):
+        s = child.state
+        #print('proceed', direction, S(child))
+        if s not in reached or child.path_cost < reached[s].path_cost:
+            frontier.add(child)
+            reached[s] = child
+            if s in reached2: # Frontiers collide; solution found
+                solution2 = (join_nodes(child, reached2[s]) if direction == 'f' else
+                             join_nodes(reached2[s], child))
+                #print('solution', path_states(solution2), solution2.path_cost,
+                # path_states(child), path_states(reached2[s]))
+                if solution2.path_cost < solution.path_cost:
+                    solution = solution2
+    return solution
+
+def join_nodes(nf, nb):
+    """Join the reverse of the backward node nb to the forward node nf."""
+    #print('join', S(nf), S(nb))
+    join = nf
+    while nb.parent is not None:
+        cost = join.path_cost + nb.path_cost - nb.parent.path_cost
+        join = Node(nb.parent.state, join, nb.action, cost)
+        nb = nb.parent
+        #print('  now join', S(join), 'with nb', S(nb), 'parent', S(nb.parent))
+    return join
+
+def bidirectional_uniform_cost_search(problem_f):
+    def terminated(solution, frontier_f, frontier_b):
+        n_f, n_b = frontier_f.top(), frontier_b.top()
+        return g(n_f) + g(n_b) > g(solution)
+    return bidirectional_best_first_search(problem_f, g, inverse_problem(problem_f), g, terminated)
